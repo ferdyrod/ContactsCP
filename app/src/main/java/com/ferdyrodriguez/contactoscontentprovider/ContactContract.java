@@ -28,8 +28,7 @@ public class ContactContract {
         uriMatcher.addURI(AUTHORITY, TABLE_NAME+"/#", CONTACT_ID);
     }
 
-    public static final class Contacto implements BaseColumns {
-
+    public static abstract class Contacto implements BaseColumns {
         public static final String COL_NAME = "nombre";
         public static final String COL_CELLPHONE = "movil";
         public static final String COL_PHONE = "telefono";

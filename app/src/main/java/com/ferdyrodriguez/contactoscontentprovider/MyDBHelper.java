@@ -12,17 +12,14 @@ public class MyDBHelper extends SQLiteOpenHelper {
 
     public static final int DB_VERSION = 1;
     public static final String DB_NAME = "ContactosDB.db";
-    public static final String TABLE_NAME = "Contacto";
-    public static final String NAME_COLUMN = "nombre";
-    public static final String PHONE_COLUMN = "movil";
-    public static final String TELEFONO_COLUMN = "telefono";
-    public static final String EMAIL_COLUMN = "email";
+    public static final String TABLE_NAME = "contactos";
+
     public static final String TABLE_CONTACTS = "CREATE TABLE " + TABLE_NAME +
-            "(_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-            NAME_COLUMN + " varchar(60), " +
-            PHONE_COLUMN + " varchar(12), " +
-            TELEFONO_COLUMN + " varchar(12), " +
-            EMAIL_COLUMN + " varchar(50))";
+            "( _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+            ContactContract.Contacto.COL_NAME + " varchar(60), " +
+            ContactContract.Contacto.COL_CELLPHONE+ " varchar(12), " +
+            ContactContract.Contacto.COL_PHONE + " varchar(12), " +
+            ContactContract.Contacto.COL_EMAIL+ " varchar(50))";
 
 
     public MyDBHelper(Context context) {

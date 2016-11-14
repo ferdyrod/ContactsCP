@@ -15,6 +15,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.ferdyrodriguez.contactoscontentprovider"
+            android:name="com.ferdyrodriguez.contactoscontentprovider.MyContentProvider"
+            android:exported="true"/>
     </application>
 
 </manifest>

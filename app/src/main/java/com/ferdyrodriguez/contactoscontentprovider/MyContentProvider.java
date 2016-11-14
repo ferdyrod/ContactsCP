@@ -16,7 +16,6 @@ import android.support.annotation.Nullable;
 
 public class MyContentProvider extends ContentProvider {
 
-    private SQLiteDatabase db;
     private MyDBHelper dbHelper;
 
     @Override
@@ -33,7 +32,7 @@ public class MyContentProvider extends ContentProvider {
         if(ContactContract.uriMatcher.match(uri) == ContactContract.CONTACT_ID){
             where = "_id=" + uri.getLastPathSegment();
         }
-        db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         Cursor cur = db.query(ContactContract.TABLE_NAME,
                 projection,
@@ -57,27 +56,28 @@ public class MyContentProvider extends ContentProvider {
                 return ContactContract.SINGLE_MIME;
 
             default:
-                return null;
+                throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
     }
 
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        if(ContactContract.uriMatcher.match(uri) == ContactContract.CONTACT_ID){
-            long rowId = db.insert(ContactContract.TABLE_NAME, null, contentValues);
-
-            if(rowId > 0){
-                Uri newUri = ContentUris.withAppendedId(ContactContract.CONTENT_URI, rowId);
-                return newUri;
-            } else {
-                throw new SQLException("Failed to insert row into the Database");
-            }
-
-        } else {
-            throw new IllegalArgumentException("URI unknown: " + uri);
+        if (ContactContract.uriMatcher.match(uri) != ContactContract.ALL_CONTACTS){
+            throw new IllegalArgumentException("Unsupported Uri " + uri);
         }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        long rowId = db.insert(ContactContract.TABLE_NAME, null, contentValues);
+
+        if(rowId > 0){
+            Uri _uri = ContentUris.withAppendedId(ContactContract.CONTENT_URI, rowId);
+            getContext().getContentResolver().notifyChange(_uri, null);
+            return _uri;
+        }
+        throw new SQLException("Failed to insert to the Databsae " + uri);
     }
+
 
 
     @Override
@@ -87,10 +87,15 @@ public class MyContentProvider extends ContentProvider {
         int match = ContactContract.uriMatcher.match(uri);
         switch (match){
             case ContactContract.CONTACT_ID:
-                deletedRows = db.delete(ContactContract.TABLE_NAME, selection, selectionArgs);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                String _id = uri.getLastPathSegment();
+                deletedRows = db.delete(ContactContract.TABLE_NAME, ContactContract.Contacto._ID + "=" + _id, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        if(deletedRows > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return  deletedRows;
     }
@@ -101,10 +106,15 @@ public class MyContentProvider extends ContentProvider {
         int match = ContactContract.uriMatcher.match(uri);
         switch (match){
             case ContactContract.CONTACT_ID:
-                updatedRows = db.update(ContactContract.TABLE_NAME, contentValues, selection, selectionArgs);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                String _id = uri.getLastPathSegment();
+                updatedRows = db.update(ContactContract.TABLE_NAME, contentValues, ContactContract.Contacto._ID + "=" + _id, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        if(updatedRows > 0){
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return  updatedRows;
     }
